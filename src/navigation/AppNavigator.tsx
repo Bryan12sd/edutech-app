@@ -2,6 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Alert, View, Text, TouchableOpacity } from 'react-native';
+import { storage } from '../db/storage';
 
 import LoginScreen from '../screens/loginScreen';
 import RegisterScreen from '../screens/registerScreen';
@@ -16,9 +18,39 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator();
 
-function HomeDrawer() {
+function HomeDrawer({ navigation }: any) {
+
+  const logout = () => {
+    Alert.alert(
+      'Cerrar sesión',
+      '¿Seguro que quieres salir?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Salir',
+          onPress: () => {
+            storage.clearAll(); // borra sesión
+
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          },
+        },
+      ]
+    );
+  };
+
   return (
-    <Drawer.Navigator>
+    <Drawer.Navigator
+      screenOptions={{
+        headerRight: () => (
+          <TouchableOpacity onPress={logout} style={{ marginRight: 15 }}>
+            <Text>Salir</Text>
+          </TouchableOpacity>
+        ),
+      }}
+    >
       <Drawer.Screen name="HomeMain" component={HomeScreen} />
     </Drawer.Navigator>
   );
