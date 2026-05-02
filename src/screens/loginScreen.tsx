@@ -10,29 +10,34 @@ export default function LoginScreen({ navigation }: Props) {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
-  const login = async () => {
-    console.log('aplasto');
-    try {
-      const res = await fetch('http://192.168.100.40:8000/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      console.log('aplasto 2 ');
-      const data = await res.json();
+ const login = async () => {
+  try {
+    const res = await fetch('http://192.168.100.40:8000/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
 
-      if (data.message === 'Login exitoso') {
-        storage.set('user_id', data.user_id.toString());
-        storage.set('username', data.username);
+    const data = await res.json();
 
-        navigation.replace('Home');
-      } else {
-        Alert.alert('Error', 'Credenciales incorrectas');
-      }
-    } catch (error) {
-      console.log(error);
+    console.log('status:', res.status);
+    console.log('data:', data);
+
+    if (res.ok) {
+      storage.set('user_id', data.user_id.toString());
+      storage.set('username', data.username);
+
+      navigation.replace('Home');
+    } else {
+   
+      Alert.alert('Error', data.message || 'Credenciales incorrectas');
     }
-  };
+
+  } catch (error) {
+    console.log(error);
+    Alert.alert('Error', 'No se pudo conectar al servidor');
+  }
+};
 
   return (
     <View style={{ padding: 20 }}>
