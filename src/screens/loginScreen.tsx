@@ -26,6 +26,8 @@ export default function LoginScreen({ navigation }: Props) {
     if (res.ok) {
       storage.set('user_id', data.user_id.toString());
       storage.set('username', data.username);
+      storage.set('email', data.email);
+      
 
       navigation.replace('Home');
     } else {

@@ -8,7 +8,10 @@ import { storage } from '../db/storage';
 import LoginScreen from '../screens/loginScreen';
 import RegisterScreen from '../screens/registerScreen';
 import HomeScreen from '../screens/homeScreen';
-
+import CursosScreen from '../screens/cursosScreen';
+import MatriculaScreen from '../screens/matriculaScreen';
+import CalificacionesScreen from '../screens/calificacionesScreen';
+import PerfilScreen from '../screens/perfilScreen';
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -49,9 +52,14 @@ function HomeDrawer({ navigation }: any) {
             <Text>Salir</Text>
           </TouchableOpacity>
         ),
+
       }}
     >
       <Drawer.Screen name="HomeMain" component={HomeScreen} />
+      <Drawer.Screen name="Cursos" component={CursosScreen} />
+      <Drawer.Screen name="Matricula" component={MatriculaScreen} />
+      <Drawer.Screen name="Calificaciones" component={CalificacionesScreen} />
+      <Drawer.Screen name="Perfil" component={PerfilScreen} />
     </Drawer.Navigator>
   );
 }
@@ -63,7 +71,7 @@ export default function AppNavigator() {
 
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
-
+      
         <Stack.Screen
           name="Home"
           component={HomeDrawer}

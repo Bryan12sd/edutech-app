@@ -5,6 +5,8 @@ import { storage } from '../db/storage';
 export default function HomeScreen() {
 
   const username = storage.getString('username');
+  const email = storage.getString('email');
+  console.log(email);
 
   return (
     <View style={{ padding: 20 }}>
