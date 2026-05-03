@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
+import {
+  DrawerContentScrollView,
+  DrawerContentComponentProps,
+} from '@react-navigation/drawer';
 import { DrawerActions } from '@react-navigation/native';
 import { storage, ID_OBJECT } from '../db/storage';
 import { useUser } from '../hooks/useUser';
@@ -19,7 +22,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   const user = useUser();
 
   const logout = () => {
-    storage.clearAll();
+    storage.remove(ID_OBJECT.user);
 
     navigation.reset({
       index: 0,
@@ -27,7 +30,13 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     });
   };
 
-  const Item = ({ label, screen }: { label: string; screen: keyof DrawerParamList }) => (
+  const Item = ({
+    label,
+    screen,
+  }: {
+    label: string;
+    screen: keyof DrawerParamList;
+  }) => (
     <TouchableOpacity
       style={styles.item}
       onPress={() => {
@@ -46,7 +55,6 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
 
   return (
     <DrawerContentScrollView {...props} style={styles.drawer}>
-      
       <View style={styles.header}>
         <Text style={styles.logo}>EduTech</Text>
       </View>
@@ -57,12 +65,8 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
         </View>
 
         <View>
-          <Text style={styles.name}>
-            {user?.username ?? 'Usuario'}
-          </Text>
-          <Text style={styles.username}>
-            {user?.email ?? ''}
-          </Text>
+          <Text style={styles.name}>{user?.username ?? 'Usuario'}</Text>
+          <Text style={styles.username}>{user?.email ?? ''}</Text>
         </View>
       </View>
 
@@ -81,7 +85,6 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
       <TouchableOpacity style={styles.logout} onPress={logout}>
         <Text style={styles.logoutText}>Salir</Text>
       </TouchableOpacity>
-
     </DrawerContentScrollView>
   );
 }

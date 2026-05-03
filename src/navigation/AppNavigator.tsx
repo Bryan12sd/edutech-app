@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Alert, View, Text, TouchableOpacity } from 'react-native';
-import { storage } from '../db/storage';
+import { ID_OBJECT, storage } from '../db/storage';
 
 import LoginScreen from '../screens/loginScreen';
 import RegisterScreen from '../screens/registerScreen';
@@ -14,8 +14,10 @@ import CalificacionesScreen from '../screens/calificacionesScreen';
 import PerfilScreen from '../screens/perfilScreen';
 import HorariosScreen from '../screens/horarioScreen';
 import TopBar from '../components/topbar';
+import AuthLoadingScreen from '../screens/AuthLoadingScreen';
 import CustomDrawer from '../components/CustomDrawer';
 export type RootStackParamList = {
+  AuthLoading: undefined;
   Login: undefined;
   Register: undefined;
   Home: undefined;
@@ -31,7 +33,7 @@ function HomeDrawer({ navigation }: any) {
       {
         text: 'Salir',
         onPress: () => {
-          storage.clearAll(); // borra sesión
+          storage.remove(ID_OBJECT.user); // borra sesión
 
           navigation.reset({
             index: 0,
@@ -66,7 +68,12 @@ function HomeDrawer({ navigation }: any) {
 export default function AppNavigator() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator initialRouteName="AuthLoading">
+        <Stack.Screen
+          name="AuthLoading"
+          component={AuthLoadingScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="Login"
           component={LoginScreen}
