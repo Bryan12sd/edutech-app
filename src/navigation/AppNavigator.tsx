@@ -1,21 +1,18 @@
-import React from 'react';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { Alert, View, Text, TouchableOpacity } from 'react-native';
-import { ID_OBJECT, storage } from '../db/storage';
-
-import LoginScreen from '../screens/loginScreen';
-import RegisterScreen from '../screens/registerScreen';
-import HomeScreen from '../screens/homeScreen';
-import CursosScreen from '../screens/cursosScreen';
-import MatriculaScreen from '../screens/matriculaScreen';
-import CalificacionesScreen from '../screens/calificacionesScreen';
-import PerfilScreen from '../screens/perfilScreen';
-import HorariosScreen from '../screens/horarioScreen';
+import React from 'react';
+import CustomDrawer from '../components/CustomDrawer';
 import TopBar from '../components/topbar';
 import AuthLoadingScreen from '../screens/AuthLoadingScreen';
-import CustomDrawer from '../components/CustomDrawer';
+import CalificacionesScreen from '../screens/calificacionesScreen';
+import CursosScreen from '../screens/cursosScreen';
+import HomeScreen from '../screens/homeScreen';
+import HorariosScreen from '../screens/horarioScreen';
+import LoginScreen from '../screens/loginScreen';
+import MatriculaScreen from '../screens/matriculaScreen';
+import PerfilScreen from '../screens/perfilScreen';
+import RegisterScreen from '../screens/registerScreen';
 export type RootStackParamList = {
   AuthLoading: undefined;
   Login: undefined;
@@ -26,24 +23,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator();
 
-function HomeDrawer({ navigation }: any) {
-  const logout = () => {
-    Alert.alert('Cerrar sesión', '¿Seguro que quieres salir?', [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Salir',
-        onPress: () => {
-          storage.remove(ID_OBJECT.user); // borra sesión
-
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
-        },
-      },
-    ]);
-  };
-
+function HomeDrawer({}: any) {
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawer {...props} />}
