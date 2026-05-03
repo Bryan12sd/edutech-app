@@ -5,3 +5,7 @@ export const storage = createMMKV({
   encryptionKey: 'edutech',
 });
 
+export const ID_OBJECT = {
+  user: 'user',
+
+};
