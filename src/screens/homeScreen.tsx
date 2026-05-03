@@ -9,10 +9,11 @@ import {
   StatusBar,
   RefreshControl,
 } from 'react-native';
-import { storage } from '../db/storage';
 import { useUser } from '../hooks/useUser';
 import { API_BASE_URL } from '../config/constants';
 import { useNetwork } from '../hooks/useNetwork';
+import { ID_OBJECT, storage } from '../db/storage';
+import { Curso,Horario, Calificacion} from '../db/types';
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }: any) {
@@ -25,6 +26,7 @@ export default function HomeScreen({ navigation }: any) {
   const [horarios, setHorarios] = useState<any[]>([]);
   const [loadingHorarios, setLoadingHorarios] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [calificaciones, setCalificaciones] = useState<any[]>([]);
   const user = useUser();
   useEffect(() => {
     const options: Intl.DateTimeFormatOptions = {
@@ -39,15 +41,23 @@ export default function HomeScreen({ navigation }: any) {
   useEffect(() => {
     fetchCursos();
     fetchHorarios();
+    fetchCalificaciones();
   }, []);
   const { isOnline } = useNetwork();
+
   const fetchCursos = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/cursos/`);
-      const data = await res.json();
+      const data: Curso[] = await res.json();
+
       setCursos(data);
+      storage.set(ID_OBJECT.cursos, JSON.stringify(data));
     } catch (e) {
-      console.log(e);
+      console.log('ERROR API:', e);
+      const cache = storage.getString(ID_OBJECT.cursos);
+      if (cache) {
+        setCursos(JSON.parse(cache));
+      }
     } finally {
       setLoading(false);
     }
@@ -55,14 +65,36 @@ export default function HomeScreen({ navigation }: any) {
   const fetchHorarios = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/horario`);
-      const data = await res.json();
+      const data: Horario[] = await res.json();
       setHorarios(data);
+       storage.set(ID_OBJECT.horarios, JSON.stringify(data));
     } catch (e) {
-      console.log(e);
+      console.log('ERROR API:', e);
+      const cache = storage.getString(ID_OBJECT.horarios);
+      if (cache) {
+        setHorarios(JSON.parse(cache));
+      }
     } finally {
       setLoadingHorarios(false);
     }
   };
+
+   const fetchCalificaciones = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/calificaciones/`);
+        const data: Calificacion[] = await res.json();
+        setCalificaciones(data);
+        storage.set(ID_OBJECT.calificaciones, JSON.stringify(data));
+      } catch (error) {
+       console.log('ERROR API:', error);
+      const cache = storage.getString(ID_OBJECT.calificaciones);
+      if (cache) {
+        setCalificaciones(JSON.parse(cache));
+      }
+      } finally {
+        setLoading(false);
+      }
+    };
   const onRefresh = async () => {
     if (isOnline) {
       setRefreshing(true);
@@ -73,7 +105,6 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
 
-  // Datos de ejemplo
   const stats = {
     cursosActivos: 3,
     cursosCompletados: 0,
@@ -119,19 +150,7 @@ export default function HomeScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
-      {!isOnline && (
-        <View
-          style={{
-            backgroundColor: '#ef4444',
-            padding: 8,
-            alignItems: 'center',
-          }}
-        >
-          <Text style={{ color: 'white', fontSize: 12 }}>
-            Sin conexión a internet
-          </Text>
-        </View>
-      )}
+      
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={

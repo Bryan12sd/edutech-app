@@ -23,7 +23,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
 
   const register = async () => {
-    // VALIDACIONES
+
     if (!username || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'Completa todos los campos');
       return;

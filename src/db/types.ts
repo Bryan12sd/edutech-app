@@ -6,6 +6,19 @@ export type User = {
 export type Curso = {
   id: number;
   nombre: string;
+  codigo: string;
+  creditos: number;
+  categoria: string;
+  nivel: string;
+  descripcion:string;
+  duracion:string;
+  cupo:number;
+  color:string;
+  icono:string;
+  activo:boolean;
+  fecha_creacion: string;
+  fecha_actualizacion: string;
+  profesor: string;
 };
 
 export type Calificacion = {
@@ -13,6 +26,8 @@ export type Calificacion = {
   nota: number;
   curso: number;
   estudiante: number;
+  estudiante_nombre: string;
+  curso_nombre: string;
 };
 
 export type Matricula = {
@@ -34,4 +49,5 @@ export type Horario = {
   curso: number;
   estudiante: number;
   curso_nombre: string;
+  estudiante_nombre: string;
 };

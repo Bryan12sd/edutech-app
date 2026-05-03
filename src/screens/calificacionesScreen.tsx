@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { API_BASE_URL } from '../config/constants';
-
+import { ID_OBJECT, storage } from '../db/storage';
 type Calificacion = {
   id: number;
   nota: number;
@@ -16,7 +16,7 @@ type Calificacion = {
 };
 
 export default function CalificacionesScreen() {
-  const [data, setData] = useState<Calificacion[]>([]);
+  const [calificaciones, setCalificaciones] = useState<Calificacion[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,14 +25,19 @@ export default function CalificacionesScreen() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/calificaciones/`);
-      const json = await res.json();
-      setData(json);
-    } catch (error) {
-      console.log('ERROR:', error);
-    } finally {
-      setLoading(false);
-    }
+           const res = await fetch(`${API_BASE_URL}/calificaciones/`);
+           const data: Calificacion[] = await res.json();
+           setCalificaciones(data);
+           storage.set(ID_OBJECT.calificaciones, JSON.stringify(data));
+         } catch (error) {
+          console.log('ERROR API:', error);
+         const cache = storage.getString(ID_OBJECT.calificaciones);
+         if (cache) {
+           setCalificaciones(JSON.parse(cache));
+         }
+         } finally {
+           setLoading(false);
+         }
   };
 
   const getColor = (nota: number) => {
@@ -53,7 +58,7 @@ export default function CalificacionesScreen() {
 
       {/* HEADER */}
       <View style={styles.header}>
-        <Text style={styles.title}>Calificaciones</Text>
+        <Text style={styles.title}>🎓 Calificaciones</Text>
         <Text style={styles.subtitle}>
           Revisa tu rendimiento académico
         </Text>
@@ -68,7 +73,7 @@ export default function CalificacionesScreen() {
           </View>
         ) : (
           <FlatList
-            data={data}
+            data={calificaciones}
             keyExtractor={(item) => item.id.toString()}
             showsVerticalScrollIndicator={false}
             renderItem={({ item, index }) => (

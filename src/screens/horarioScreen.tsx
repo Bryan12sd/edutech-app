@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Horario } from '../db/types';
+import { ID_OBJECT, storage } from '../db/storage';
 import { API_BASE_URL } from '../config/constants';
 
 export default function HorariosScreen() {
@@ -19,16 +20,21 @@ export default function HorariosScreen() {
   }, []);
 
   const fetchHorarios = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/horario`);
-      const data = await res.json();
-      setHorarios(data);
-    } catch (err) {
-      console.log('ERROR API:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+     try {
+       const res = await fetch(`${API_BASE_URL}/horario`);
+       const data: Horario[] = await res.json();
+       setHorarios(data);
+        storage.set(ID_OBJECT.horarios, JSON.stringify(data));
+     } catch (e) {
+       console.log('ERROR API:', e);
+       const cache = storage.getString(ID_OBJECT.horarios);
+       if (cache) {
+         setHorarios(JSON.parse(cache));
+       }
+     } finally {
+       setLoading(false);
+     }
+   };
 
   const getColor = (index: number) => {
     const colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'];

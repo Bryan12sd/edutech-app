@@ -13,7 +13,8 @@ import {
 import { Curso } from '../db/types';
 import { API_BASE_URL } from '../config/constants';
 import { useUser } from '../hooks/useUser';
-
+import { storage, ID_OBJECT } from '../db/storage';
+import { useNetwork } from '../hooks/useNetwork';
 type Matricula = {
   curso: number;
 };
@@ -25,15 +26,18 @@ export default function MatriculaScreen() {
   const [loadingId, setLoadingId] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const user = useUser();
-
+  const { isOnline } = useNetwork();
   useEffect(() => {
     if (user) {
-      fetchData();
+      fetchDataMatricula();
     }
   }, [user]);
 
-  const fetchData = async () => {
-    try {
+ const fetchDataMatricula = async () => {
+  try {
+
+
+    if (isOnline) {
       const cursosRes = await fetch(`${API_BASE_URL}/cursos/`);
       const cursosData = await cursosRes.json();
 
@@ -46,15 +50,44 @@ export default function MatriculaScreen() {
 
       setCursos(cursosData);
       setMisCursos(inscritos);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false); // solo afecta carga inicial
+
+      storage.set(ID_OBJECT.cursos, JSON.stringify(cursosData));
+      storage.set(ID_OBJECT.matriculas, JSON.stringify(matData));
+
+    } else {
+
+      const cursosCache = storage.getString(ID_OBJECT.cursos);
+      const matCache = storage.getString(ID_OBJECT.matriculas);
+
+      if (cursosCache) {
+        setCursos(JSON.parse(cursosCache));
+      }
+
+      if (matCache) {
+        const parsed: Matricula[] = JSON.parse(matCache);
+        setMisCursos(parsed.map(m => m.curso));
+      }
     }
-  };
+
+  } catch (e) {
+    console.log('ERROR:', e);
+
+    const cursosCache = storage.getString(ID_OBJECT.cursos);
+    const matCache = storage.getString(ID_OBJECT.matriculas);
+
+    if (cursosCache) setCursos(JSON.parse(cursosCache));
+    if (matCache) {
+      const parsed: Matricula[] = JSON.parse(matCache);
+      setMisCursos(parsed.map(m => m.curso));
+    }
+
+  } finally {
+    setLoading(false);
+  }
+};
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchData();
+    await fetchDataMatricula();
     setRefreshing(false);
   };
   const matricular = async (cursoId: number) => {
@@ -99,7 +132,7 @@ export default function MatriculaScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
       <View style={styles.header}>
-        <Text style={styles.title}>📝 Matrícula</Text>
+        <Text style={styles.title}>Matrícula</Text>
         <Text style={styles.subtitle}>Inscríbete en nuevos cursos</Text>
       </View>
 

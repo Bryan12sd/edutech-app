@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Curso } from '../db/types';
 import { API_BASE_URL } from '../config/constants';
+import { ID_OBJECT, storage } from '../db/storage';
 
 export default function CursosScreen() {
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -19,16 +20,22 @@ export default function CursosScreen() {
   }, []);
 
   const fetchCursos = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/cursos/`);
-      const data = await res.json();
-      setCursos(data);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
+  try {
+    const res = await fetch(`${API_BASE_URL}/cursos/`);
+    const data: Curso[] = await res.json();
+
+    setCursos(data);
+    storage.set(ID_OBJECT.cursos, JSON.stringify(data));
+  } catch (e) {
+    console.log('ERROR API:', e);
+    const cache = storage.getString(ID_OBJECT.cursos);
+    if (cache) {
+      setCursos(JSON.parse(cache));
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <View style={styles.container}>
