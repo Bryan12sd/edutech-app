@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import {
   DrawerContentScrollView,
   DrawerContentComponentProps,
@@ -56,6 +56,10 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
   return (
     <DrawerContentScrollView {...props} style={styles.drawer}>
       <View style={styles.header}>
+        <Image
+          source={require('../assets/images/logo.png')}
+          style={styles.image}
+        />
         <Text style={styles.logo}>EduTech</Text>
       </View>
 
@@ -104,6 +108,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+    alignSelf: 'center',
   },
 
   profile: {
@@ -167,5 +172,11 @@ const styles = StyleSheet.create({
   logoutText: {
     color: '#ef4444',
     fontWeight: 'bold',
+  },
+  image: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    alignSelf: 'center',
   },
 });
