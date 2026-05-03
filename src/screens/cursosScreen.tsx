@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { Curso } from '../db/types';
 import { styles } from '../config/styles';
+import { API_BASE_URL } from '../config/constants';
 export default function CursosScreen() {
 
   const [cursos, setCursos] = useState<Curso[]>([]);
 
   useEffect(() => {
-    fetch('http://192.168.100.40:8000/api/cursos/')
+    fetch(`${API_BASE_URL}/cursos/`)
       .then(res => res.json())
       .then(data => setCursos(data));
   }, []);

@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { storage } from '../db/storage';
+import { API_BASE_URL } from '../config/constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -12,7 +13,7 @@ export default function LoginScreen({ navigation }: Props) {
 
  const login = async () => {
   try {
-    const res = await fetch('http://192.168.100.40:8000/api/login', {
+    const res = await fetch(`${API_BASE_URL}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),

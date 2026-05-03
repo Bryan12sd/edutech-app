@@ -3,14 +3,14 @@ import { View, Text, FlatList } from 'react-native';
 import { Calificacion } from '../db/types';
 import { styles } from '../config/styles';
 import { storage } from '../db/storage';
-
+import { API_BASE_URL } from '../config/constants';
 export default function CalificacionesScreen() {
 
   const [data, setData] = useState<Calificacion[]>([]);
   const userId = Number(storage.getString('user_id'));
 
   useEffect(() => {
-    fetch('http://TU_IP:8000/api/calificaciones/')
+    fetch(`${API_BASE_URL}/calificaciones/`)
       .then(res => res.json())
       .then(res => {
         const filtrado = res.filter((c: Calificacion) => c.estudiante === userId);

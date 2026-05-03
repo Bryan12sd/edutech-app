@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { styles } from '../config/styles';
 import { Horario } from '../db/types';
-
+import { API_BASE_URL } from '../config/constants';
 export default function HorariosScreen() {
   const [horarios, setHorarios] = useState<Horario[]>([]);
 
   useEffect(() => {
-    fetch('http://192.168.100.40:8000/api/horario')
+    fetch(`${API_BASE_URL}/horario`)
       .then(res => res.json())
       .then(data => {
         console.log('RESPUESTA API:', data);
