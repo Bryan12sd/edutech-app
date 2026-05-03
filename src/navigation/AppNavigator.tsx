@@ -25,38 +25,32 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Drawer = createDrawerNavigator();
 
 function HomeDrawer({ navigation }: any) {
-
   const logout = () => {
-    Alert.alert(
-      'Cerrar sesión',
-      '¿Seguro que quieres salir?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Salir',
-          onPress: () => {
-            storage.clearAll(); // borra sesión
+    Alert.alert('Cerrar sesión', '¿Seguro que quieres salir?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Salir',
+        onPress: () => {
+          storage.clearAll(); // borra sesión
 
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          },
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
     <Drawer.Navigator
-    drawerContent={(props) => <CustomDrawer {...props} />}
+      drawerContent={props => <CustomDrawer {...props} />}
       screenOptions={{
         header: () => <TopBar />,
-         drawerStyle: {
+        drawerStyle: {
           backgroundColor: '#0f172a',
           width: 280,
         },
-
       }}
     >
       <Drawer.Screen name="HomeMain" component={HomeScreen} />
@@ -65,7 +59,6 @@ function HomeDrawer({ navigation }: any) {
       <Drawer.Screen name="Calificaciones" component={CalificacionesScreen} />
       <Drawer.Screen name="Perfil" component={PerfilScreen} />
       <Drawer.Screen name="Horarios" component={HorariosScreen} />
-      
     </Drawer.Navigator>
   );
 }
@@ -74,16 +67,22 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
 
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-      
+        <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ headerShown: false }}
+        />
         <Stack.Screen
           name="Home"
           component={HomeDrawer}
           options={{ headerShown: false }}
         />
-
       </Stack.Navigator>
     </NavigationContainer>
   );
