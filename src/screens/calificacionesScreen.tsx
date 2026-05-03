@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { Calificacion } from '../db/types';
+import { styles } from '../config/styles';
 import { storage } from '../db/storage';
 
 export default function CalificacionesScreen() {
@@ -9,7 +10,7 @@ export default function CalificacionesScreen() {
   const userId = Number(storage.getString('user_id'));
 
   useEffect(() => {
-    fetch('http://192.168.100.40:8000/api/calificaciones/')
+    fetch('http://TU_IP:8000/api/calificaciones/')
       .then(res => res.json())
       .then(res => {
         const filtrado = res.filter((c: Calificacion) => c.estudiante === userId);
@@ -18,12 +19,17 @@ export default function CalificacionesScreen() {
   }, []);
 
   return (
-    <View>
+    <View style={styles.container}>
+      <Text style={styles.title}>Calificaciones</Text>
+
       <FlatList
         data={data}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Text>Curso: {item.curso} - Nota: {item.nota}</Text>
+          <View style={styles.card}>
+            <Text style={styles.text}>Curso ID: {item.curso}</Text>
+            <Text style={styles.text}>Nota: {item.nota}</Text>
+          </View>
         )}
       />
     </View>

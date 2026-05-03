@@ -12,6 +12,7 @@ import CursosScreen from '../screens/cursosScreen';
 import MatriculaScreen from '../screens/matriculaScreen';
 import CalificacionesScreen from '../screens/calificacionesScreen';
 import PerfilScreen from '../screens/perfilScreen';
+import HorariosScreen from '../screens/horarioScreen';
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -60,6 +61,8 @@ function HomeDrawer({ navigation }: any) {
       <Drawer.Screen name="Matricula" component={MatriculaScreen} />
       <Drawer.Screen name="Calificaciones" component={CalificacionesScreen} />
       <Drawer.Screen name="Perfil" component={PerfilScreen} />
+      <Drawer.Screen name="Horarios" component={HorariosScreen} />
+      
     </Drawer.Navigator>
   );
 }

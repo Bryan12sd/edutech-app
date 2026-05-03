@@ -27,3 +27,11 @@ export type Estudiante = {
   email: string;
   user: number;
 };
+export type Horario = {
+  id: number;
+  dia: string;
+  hora: string;
+  curso: number;
+  estudiante: number;
+  curso_nombre: string;
+};
