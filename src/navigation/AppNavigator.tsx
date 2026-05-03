@@ -13,6 +13,8 @@ import MatriculaScreen from '../screens/matriculaScreen';
 import CalificacionesScreen from '../screens/calificacionesScreen';
 import PerfilScreen from '../screens/perfilScreen';
 import HorariosScreen from '../screens/horarioScreen';
+import TopBar from '../components/topbar';
+import CustomDrawer from '../components/CustomDrawer';
 export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
@@ -47,12 +49,13 @@ function HomeDrawer({ navigation }: any) {
 
   return (
     <Drawer.Navigator
+    drawerContent={(props) => <CustomDrawer {...props} />}
       screenOptions={{
-        headerRight: () => (
-          <TouchableOpacity onPress={logout} style={{ marginRight: 15 }}>
-            <Text>Salir</Text>
-          </TouchableOpacity>
-        ),
+        header: () => <TopBar />,
+         drawerStyle: {
+          backgroundColor: '#0f172a',
+          width: 280,
+        },
 
       }}
     >
