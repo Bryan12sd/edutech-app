@@ -8,34 +8,55 @@ import {
   StatusBar,
   ActivityIndicator,
   Alert,
+  RefreshControl
 } from 'react-native';
 import { Curso } from '../db/types';
 import { API_BASE_URL } from '../config/constants';
 import { useUser } from '../hooks/useUser';
 
+type Matricula = {
+  curso: number;
+};
+
 export default function MatriculaScreen() {
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [misCursos, setMisCursos] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingId, setLoadingId] = useState<number | null>(null);
-
+  const [refreshing, setRefreshing] = useState(false);
   const user = useUser();
 
   useEffect(() => {
-    fetchCursos();
-  }, []);
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
-  const fetchCursos = async () => {
+  const fetchData = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/cursos/`);
-      const data = await res.json();
-      setCursos(data);
+      const cursosRes = await fetch(`${API_BASE_URL}/cursos/`);
+      const cursosData = await cursosRes.json();
+
+      const matRes = await fetch(
+        `${API_BASE_URL}/matriculas?user_id=${user.user_id}`,
+      );
+      const matData: Matricula[] = await matRes.json();
+
+      const inscritos = matData.map(m => m.curso);
+
+      setCursos(cursosData);
+      setMisCursos(inscritos);
     } catch (e) {
       console.log(e);
     } finally {
-      setLoading(false);
+      setLoading(false); // solo afecta carga inicial
     }
   };
-
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
   const matricular = async (cursoId: number) => {
     try {
       setLoadingId(cursoId);
@@ -44,13 +65,16 @@ export default function MatriculaScreen() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          estudiante: user?.user_id,
+          estudiante: user.user_id,
           curso: cursoId,
         }),
       });
 
       if (res.ok) {
         Alert.alert('Éxito', 'Te matriculaste correctamente');
+
+        // actualizar estado local (sin recargar todo)
+        setMisCursos(prev => [...prev, cursoId]);
       } else {
         Alert.alert('Error', 'No se pudo matricular');
       }
@@ -66,19 +90,19 @@ export default function MatriculaScreen() {
     return colors[index % colors.length];
   };
 
+  const isInscrito = (cursoId: number) => {
+    return misCursos.includes(cursoId);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
 
-      {/* HEADER */}
       <View style={styles.header}>
-        <Text style={styles.title}>Matrícula</Text>
-        <Text style={styles.subtitle}>
-          Inscríbete en nuevos cursos
-        </Text>
+        <Text style={styles.title}>📝 Matrícula</Text>
+        <Text style={styles.subtitle}>Inscríbete en nuevos cursos</Text>
       </View>
 
-      {/* CONTENIDO */}
       <View style={styles.content}>
         {loading ? (
           <View style={styles.center}>
@@ -88,50 +112,55 @@ export default function MatriculaScreen() {
         ) : (
           <FlatList
             data={cursos}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item, index }) => (
-              <View style={styles.card}>
-                
-                {/* COLOR */}
-                <View
-                  style={[
-                    styles.colorBar,
-                    { backgroundColor: getColor(index) },
-                  ]}
-                />
-
-                {/* INFO */}
-                <View style={styles.cardContent}>
-                  <Text style={styles.course}>
-                    {item.nombre}
-                  </Text>
-                  <Text style={styles.label}>
-                    Disponible
-                  </Text>
-                </View>
-
-                {/* BOTÓN */}
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => matricular(item.id)}
-                  disabled={loadingId === item.id}
-                >
-                  {loadingId === item.id ? (
-                    <ActivityIndicator color="#fff" />
-                  ) : (
-                    <Text style={styles.buttonText}>
-                      Matricular
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            )}
-            ListEmptyComponent={
-              <Text style={styles.empty}>
-                No hay cursos disponibles
-              </Text>
+            keyExtractor={item => item.id.toString()}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#3b82f6']} // Android
+                tintColor="#3b82f6" // iOS
+              />
             }
+            renderItem={({ item, index }) => {
+              const inscrito = isInscrito(item.id);
+
+              return (
+                <View style={styles.card}>
+                  <View
+                    style={[
+                      styles.colorBar,
+                      { backgroundColor: getColor(index) },
+                    ]}
+                  />
+
+                  <View style={styles.cardContent}>
+                    <Text style={styles.course}>{item.nombre}</Text>
+
+                    <Text style={styles.label}>
+                      {inscrito ? 'Ya inscrito' : 'Disponible'}
+                    </Text>
+                  </View>
+
+                  {inscrito ? (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>Inscrito</Text>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => matricular(item.id)}
+                      disabled={loadingId === item.id}
+                    >
+                      {loadingId === item.id ? (
+                        <ActivityIndicator color="#fff" />
+                      ) : (
+                        <Text style={styles.buttonText}>Matricular</Text>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                </View>
+              );
+            }}
           />
         )}
       </View>
@@ -179,11 +208,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
-
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 3,
   },
 
@@ -202,12 +226,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#0f172a',
-    marginBottom: 4,
   },
 
   label: {
     fontSize: 12,
     color: '#64748b',
+    marginTop: 4,
   },
 
   button: {
@@ -223,6 +247,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
+  badge: {
+    backgroundColor: '#d1fae5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+
+  badgeText: {
+    color: '#065f46',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+
   center: {
     alignItems: 'center',
     marginTop: 50,
@@ -231,11 +268,5 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     color: '#64748b',
-  },
-
-  empty: {
-    textAlign: 'center',
-    marginTop: 30,
-    color: '#94a3b8',
   },
 });

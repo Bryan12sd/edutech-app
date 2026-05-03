@@ -7,5 +7,8 @@ export const storage = createMMKV({
 
 export const ID_OBJECT = {
   user: 'user',
-
+  cursos: 'cursos',
+  calificaciones: 'calificaciones',
+  matriculas: 'matriculas',
+  horarios: 'horarios',
 };

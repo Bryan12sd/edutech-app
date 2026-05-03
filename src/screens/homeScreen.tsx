@@ -12,6 +12,7 @@ import {
 import { storage } from '../db/storage';
 import { useUser } from '../hooks/useUser';
 import { API_BASE_URL } from '../config/constants';
+import { useNetwork } from '../hooks/useNetwork';
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen({ navigation }: any) {
@@ -39,7 +40,7 @@ export default function HomeScreen({ navigation }: any) {
     fetchCursos();
     fetchHorarios();
   }, []);
-
+  const { isOnline } = useNetwork();
   const fetchCursos = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/cursos/`);
@@ -63,11 +64,13 @@ export default function HomeScreen({ navigation }: any) {
     }
   };
   const onRefresh = async () => {
-    setRefreshing(true);
+    if (isOnline) {
+      setRefreshing(true);
 
-    await Promise.all([fetchCursos(), fetchHorarios()]);
+      await Promise.all([fetchCursos(), fetchHorarios()]);
 
-    setRefreshing(false);
+      setRefreshing(false);
+    }
   };
 
   // Datos de ejemplo
@@ -116,7 +119,19 @@ export default function HomeScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
-
+      {!isOnline && (
+        <View
+          style={{
+            backgroundColor: '#ef4444',
+            padding: 8,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 12 }}>
+            Sin conexión a internet
+          </Text>
+        </View>
+      )}
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
